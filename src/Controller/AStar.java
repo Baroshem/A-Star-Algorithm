@@ -6,11 +6,10 @@ import java.util.ArrayList;
 
 public class AStar {
     private int size, diagonalMoveCost;
-    private long runTime;
     private double kValue;
     private Frame frame;
     private Node startNode, endNode, par;
-    private boolean diagonal, running, noPath, complete, trig;
+    private boolean diagonal, running, noPath, complete;
     private ArrayList<Node> borders, open, closed, path;
     private Sorting sort = new Sorting();
 
@@ -21,7 +20,6 @@ public class AStar {
         diagonalMoveCost = (int) (Math.sqrt(2 * (Math.pow(size, 2))));
         kValue = Math.PI / 2;
         diagonal = true;
-        trig = false;
         running = false;
         complete = false;
 
@@ -40,14 +38,9 @@ public class AStar {
         // Adding the starting node to the closed list
         addClosed(startNode);
 
-        long startTime = System.currentTimeMillis();
-
         findPath(startNode);
 
         complete = true;
-        long endTime = System.currentTimeMillis();
-        runTime = endTime - startTime;
-        System.out.println("Completed: " + runTime + "ms");
     }
 
     public void setup(Node s, Node e) {
@@ -59,35 +52,6 @@ public class AStar {
 
         // Adding the starting node to the closed list
         addClosed(startNode);
-    }
-
-    public boolean isRunning() {
-        return running;
-    }
-
-    public boolean isComplete() {
-        return complete;
-    }
-
-    public Node getPar() {
-        return par;
-    }
-
-    public boolean isNoPath() {
-        return noPath;
-    }
-
-    public void setDiagonal(boolean d) {
-        diagonal = d;
-    }
-
-    public void setTrig(boolean t) {
-        trig = t;
-    }
-
-    public void setSize(int s) {
-        size = s;
-        diagonalMoveCost = (int) (Math.sqrt(2 * (Math.pow(size, 2))));
     }
 
     public void findPath(Node parent) {
@@ -119,33 +83,6 @@ public class AStar {
                 }
             }
         }
-        else if (!trig) {
-            // Detects and adds one step of nodes to open list
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    if((i == 0 && j == 0) || (i == 0 && j == 2) ||
-                            (i == 1 && j == 1) || (i == 2 && j == 0) ||
-                            (i == 2 && j == 2)) {
-                        continue;
-                    }
-                    int possibleX = (parent.getX() - size) + (size * i);
-                    int possibleY = (parent.getY() - size) + (size * j);
-
-                    calculateNodeValues(possibleX, possibleY, parent);
-                }
-            }
-        }
-        else {
-            for (int i = 0; i < 4; i++) {
-                // Uses cosine and sine functions to get circle of points
-                // around parent
-                int possibleX = (int) Math.round(parent.getX() + (-size * Math.cos(kValue * i)));
-                int possibleY = (int) Math.round(parent.getY() + (-size * Math.sin(kValue * i)));
-
-                calculateNodeValues(possibleX, possibleY, parent);
-            }
-        }
-        // frame.repaint();
 
         // Set the new parent node
         parent = lowestFCost();
@@ -416,26 +353,6 @@ public class AStar {
         return null;
     }
 
-    public ArrayList<Node> getBorderList() {
-        return borders;
-    }
-
-    public ArrayList<Node> getOpenList() {
-        return open;
-    }
-
-    public ArrayList<Node> getClosedList() {
-        return closed;
-    }
-
-    public ArrayList<Node> getPathList() {
-        return path;
-    }
-
-    public long getRunTime() {
-        return runTime;
-    }
-
     public void reset() {
         while(open.size() > 0) {
             open.remove(0);
@@ -460,5 +377,41 @@ public class AStar {
             }
         }
         return null;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public boolean isComplete() {
+        return complete;
+    }
+
+    public Node getPar() {
+        return par;
+    }
+
+    public boolean isNoPath() {
+        return noPath;
+    }
+
+    public void setDiagonal(boolean d) {
+        diagonal = d;
+    }
+
+    public ArrayList<Node> getBorderList() {
+        return borders;
+    }
+
+    public ArrayList<Node> getOpenList() {
+        return open;
+    }
+
+    public ArrayList<Node> getClosedList() {
+        return closed;
+    }
+
+    public ArrayList<Node> getPathList() {
+        return path;
     }
 }

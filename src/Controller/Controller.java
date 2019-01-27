@@ -11,18 +11,15 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JSlider;
 
 public class Controller {
     private Frame frame;
-    private JLabel modeText, speedT, speedC, openT,
+    private JLabel modeText, openT,
             closedT, pathT, openC, closedC, pathC, noPathT;
-    private JCheckBox showStepsCheck, diagonalCheck, trigCheck;
-    private JSlider speed;
+    private JCheckBox showStepsCheck, diagonalCheck;
     private JButton run;
     private ArrayList<JLabel> labels;
     private ArrayList<JCheckBox> checks;
-    private ArrayList<JSlider> sliders;
     private ArrayList<JButton> buttons;
     private Dimension npD;
 
@@ -30,7 +27,6 @@ public class Controller {
         this.frame = frame;
         labels = new ArrayList<>();
         checks = new ArrayList<>();
-        sliders = new ArrayList<>();
         buttons = new ArrayList<>();
 
         // Set up JLabels
@@ -39,16 +35,6 @@ public class Controller {
         modeText.setFont(style.bigText);
         modeText.setForeground(style.darkText);
         modeText.setVisible(true);
-
-        speedT = new JLabel("Speed: ");
-        speedT.setName("speedT");
-        speedT.setFont(style.numbers);
-        speedT.setVisible(true);
-
-        speedC = new JLabel("50");
-        speedC.setName("speedC");
-        speedC.setFont(style.numbers);
-        speedC.setVisible(true);
 
         openT = new JLabel("Open");
         openT.setName("openT");
@@ -88,8 +74,6 @@ public class Controller {
 
         // Add JLabels to list
         labels.add(modeText);
-        labels.add(speedT);
-        labels.add(speedC);
         labels.add(openT);
         labels.add(openC);
         labels.add(closedT);
@@ -115,33 +99,9 @@ public class Controller {
         diagonalCheck.setFocusable(false);
         diagonalCheck.setVisible(true);
 
-        trigCheck = new JCheckBox();
-        trigCheck.setText("Trig");
-        trigCheck.setName("trigCheck");
-        trigCheck.setOpaque(false);
-        trigCheck.setFocusable(false);
-        trigCheck.setVisible(true);
-
         // Add JCheckboxes to list
         checks.add(showStepsCheck);
         checks.add(diagonalCheck);
-        checks.add(trigCheck);
-
-        // Set up JSliders
-        speed = new JSlider();
-        speed.setName("speed");
-        speed.setOpaque(false);
-        speed.setVisible(true);
-        speed.setFocusable(false);
-        speed.addChangeListener(e -> {
-            JSlider source = (JSlider) e.getSource();
-            speed.setValue(source.getValue());
-            frame.setSpeed();
-            frame.repaint();
-        });
-
-        // Add JSliders to list
-        sliders.add(speed);
 
         // Set up JButtons
         run = new JButton();
@@ -177,16 +137,6 @@ public class Controller {
     }
 
     // Gets specific JCheckBox by name
-    public JSlider getS(String t) {
-        for (JSlider slider : sliders) {
-            if (slider.getName().equals(t)) {
-                return slider;
-            }
-        }
-        return null;
-    }
-
-    // Gets specific JCheckBox by name
     public JButton getB(String t) {
         for (JButton button : buttons) {
             if (button.getName().equals(t)) {
@@ -204,8 +154,6 @@ public class Controller {
 
     public void position() {
         // Set label bounds
-        speedT.setBounds(180, frame.getHeight()-88, 60, 20);
-        speedC.setBounds(224, frame.getHeight()-88, 60, 20);
         openT.setBounds(254, frame.getHeight()-92, 60, 20);
         openC.setBounds(300, frame.getHeight()-92, 60, 20);
         closedT.setBounds(254, frame.getHeight()-76, 60, 20);
@@ -218,10 +166,7 @@ public class Controller {
         // Set check box bounds
         showStepsCheck.setBounds(20, frame.getHeight()-88, 90, 20);
         diagonalCheck.setBounds(20, frame.getHeight()-64, 90, 20);
-        trigCheck.setBounds(112, frame.getHeight()-63, 50, 20);
 
-        // Set slider bounds
-        speed.setBounds(178, frame.getHeight()-63, 68, 20);
 
         // Set button bounds
         run.setBounds(116, frame.getHeight()-88, 52, 22);
@@ -232,10 +177,6 @@ public class Controller {
         modeText.setForeground(style.lightText);
         showStepsCheck.setForeground(style.lightText);
         diagonalCheck.setForeground(style.lightText);
-        trigCheck.setForeground(style.lightText);
-        speed.setForeground(style.lightText);
-        speedT.setForeground(style.lightText);
-        speedC.setForeground(style.lightText);
         openT.setForeground(style.lightText);
         openC.setForeground(style.lightText);
         closedT.setForeground(style.lightText);
@@ -249,10 +190,6 @@ public class Controller {
         modeText.setForeground(style.darkText);
         showStepsCheck.setForeground(style.darkText);
         diagonalCheck.setForeground(style.darkText);
-        trigCheck.setForeground(style.darkText);
-        speed.setForeground(style.darkText);
-        speedT.setForeground(style.darkText);
-        speedC.setForeground(style.darkText);
         openT.setForeground(style.darkText);
         openC.setForeground(style.darkText);
         closedC.setForeground(style.darkText);
@@ -265,7 +202,6 @@ public class Controller {
     public void addAll() {
         frame.add(showStepsCheck);
         frame.add(diagonalCheck);
-        frame.add(trigCheck);
         frame.add(run);
         frame.add(modeText);
         frame.add(openT);
@@ -274,9 +210,6 @@ public class Controller {
         frame.add(closedC);
         frame.add(pathT);
         frame.add(pathC);
-        frame.add(speed);
-        frame.add(speedT);
-        frame.add(speedC);
     }
 
 }

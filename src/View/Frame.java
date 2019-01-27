@@ -8,20 +8,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class Frame extends JPanel implements ActionListener, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
+public class Frame extends JPanel implements ActionListener, MouseListener, MouseMotionListener, KeyListener {
     private Controller ch;
     private AStar pathfinding;
-    private boolean showSteps, btnHover;
+    private boolean showSteps;
     private int size;
-    private double a1, a2;
     private char currentKey = (char) 0;
     private Node startNode, endNode;
     private String mode;
 
     private Timer timer = new Timer(100, this);
-    private int r = randomWithRange(0, 255);
-    private int G = randomWithRange(0, 255);
-    private int b = randomWithRange(0, 255);
 
     public static void main(String[] args) {
         new Frame();
@@ -32,11 +28,10 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         size = 25;
         mode = "Map Creation";
         showSteps = true;
-        btnHover = false;
+//        btnHover = false;
         setLayout(null);
         addMouseListener(this);
         addMouseMotionListener(this);
-        addMouseWheelListener(this);
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
@@ -45,15 +40,11 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         pathfinding = new AStar(this, size);
         pathfinding.setDiagonal(true);
 
-        // Calculating value of a in speed function 1
-        a1 = (5000.0000 / (Math.pow(25.0000/5000, 1/49)));
-        a2 = 625.0000;
-
         // Set up window
         JFrame window = new JFrame();
         window.setContentPane(this);
-        window.setTitle("A* Pathfinding Visualization");
-        window.getContentPane().setPreferredSize(new Dimension(700, 600));
+        window.setTitle("A* Algorithm");
+        window.getContentPane().setPreferredSize(new Dimension(800, 700));
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.pack();
         window.setLocationRelativeTo(null);
@@ -75,7 +66,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         // If no path is found
         if (pathfinding.isNoPath()) {
             // Set timer for animation
-            timer.setDelay(50);
+            timer.setDelay(30);
             timer.start();
 
             // Set text of "run" button to "clear"
@@ -83,11 +74,6 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
 
             // Set mode to "No Path"
             mode = "No Path";
-
-            // Set up flicker animation
-            Color flicker = new Color(r, G, b);
-            g.setColor(flicker);
-            g.fillRect(0, 0, getWidth(), getHeight());
 
             // Place "No Path" text on screen in center
             ch.noPathTBounds();
@@ -102,20 +88,12 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
             ch.getB("run").setText("clear");
 
             // Set timer delay, start for background animation
-            timer.setDelay(50);
+            timer.setDelay(30);
             timer.start();
-
-            // Make the background flicker
-            Color flicker = new Color(r, G, b);
-            g.setColor(flicker);
-            g.fillRect(0, 0, getWidth(), getHeight());
 
             // Set completed mode
             if(showSteps) {
                 mode = "Completed";
-            }
-            else {
-                mode = "Completed in " + pathfinding.getRunTime() + "ms";
             }
         }
 
@@ -165,7 +143,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
 
         // Draws start of path
         if (startNode != null) {
-            g.setColor(Color.blue);
+            g.setColor(Color.green);
             g.fillRect(startNode.getX() + 1, startNode.getY() + 1, size - 1, size - 1);
         }
         // Draws end of path
@@ -174,15 +152,9 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
             g.fillRect(endNode.getX() + 1, endNode.getY() + 1, size - 1, size - 1);
         }
 
-        // If control panel is being hovered, change colours
-        if(btnHover) {
-            g.setColor(style.darkText);
-            ch.hoverColour();
-        }
-        else {
-            g.setColor(style.btnPanel);
-            ch.nonHoverColour();
-        }
+        g.setColor(style.btnPanel);
+        ch.nonHoverColour();
+
         // Drawing control panel rectangle
         g.fillRect(10, height-96, 322, 90);
 
@@ -197,18 +169,9 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         ch.getL("closedC").setText(Integer.toString(pathfinding.getClosedList().size()));
         ch.getL("pathC").setText(Integer.toString(pathfinding.getPathList().size()));
 
-        // Setting speed number text in showSteps or !showSteps mode
-        if(showSteps) {
-            ch.getL("speedC").setText(Integer.toString(ch.getS("speed").getValue()));
-        }
-        else {
-            ch.getL("speedC").setText("N/A");
-        }
-
         // Getting values from checkboxes
         showSteps = ch.getC("showStepsCheck").isSelected();
         pathfinding.setDiagonal(ch.getC("diagonalCheck").isSelected());
-        pathfinding.setTrig(ch.getC("trigCheck").isSelected());
     }
 
     // Draws info (f, g, h) on current node
@@ -316,12 +279,6 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
     @Override
     // Track mouse on movement
     public void mouseMoved(MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
-        int height = this.getHeight();
-
-        // Detects if mouse is within button panel
-        btnHover = x >= 10 && x <= 332 && y >= (height - 96) && y <= (height - 6);
         repaint();
     }
 
@@ -355,84 +312,12 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
     }
 
     @Override
-    // Scales the map with mouse wheel scroll
-    public void mouseWheelMoved(MouseWheelEvent m) {
-        int rotation = m.getWheelRotation();
-        double prevSize = size;
-        int scroll = 3;
-
-        // Changes size of grid based on scroll
-        if (rotation == -1 && size + scroll < 200) {
-            size += scroll;
-        } else if (rotation == 1 && size - scroll > 2) {
-            size += -scroll;
-        }
-        pathfinding.setSize(size);
-        double ratio = size / prevSize;
-
-        // new X and Y values for Start
-        if (startNode != null) {
-            int sX = (int) Math.round(startNode.getX() * ratio);
-            int sY = (int) Math.round(startNode.getY() * ratio);
-            startNode.setXY(sX, sY);
-        }
-
-        // new X and Y values for End
-        if (endNode != null) {
-            int eX = (int) Math.round(endNode.getX() * ratio);
-            int eY = (int) Math.round(endNode.getY() * ratio);
-            endNode.setXY(eX, eY);
-        }
-
-        // new X and Y values for borders
-        for (int i = 0; i < pathfinding.getBorderList().size(); i++) {
-            int newX = (int) Math.round((pathfinding.getBorderList().get(i).getX() * ratio));
-            int newY = (int) Math.round((pathfinding.getBorderList().get(i).getY() * ratio));
-            pathfinding.getBorderList().get(i).setXY(newX, newY);
-        }
-
-        // New X and Y for Open nodes
-        for (int i = 0; i < pathfinding.getOpenList().size(); i++) {
-            int newX = (int) Math.round((pathfinding.getOpenList().get(i).getX() * ratio));
-            int newY = (int) Math.round((pathfinding.getOpenList().get(i).getY() * ratio));
-            pathfinding.getOpenList().get(i).setXY(newX, newY);
-        }
-
-        // New X and Y for Closed Nodes
-        for (int i = 0; i < pathfinding.getClosedList().size(); i++) {
-            if (!Node.isEqual(pathfinding.getClosedList().get(i), startNode)) {
-                int newX = (int) Math.round((pathfinding.getClosedList().get(i).getX() * ratio));
-                int newY = (int) Math.round((pathfinding.getClosedList().get(i).getY() * ratio));
-                pathfinding.getClosedList().get(i).setXY(newX, newY);
-            }
-        }
-        repaint();
-    }
-
-    @Override
     public void actionPerformed(ActionEvent e) {
         // Moves one step ahead in path finding (called on timer)
         if (pathfinding.isRunning() && showSteps) {
             pathfinding.findPath(pathfinding.getPar());
             mode = "Running";
         }
-        // Finish pathfinding background flicker!
-        if (pathfinding.isComplete() || pathfinding.isNoPath()) {
-            r = (int) (Math.random() * ((r + 15) - (r - 15)) + (r - 15));
-            G = (int) (Math.random() * ((G + 15) - (G - 15)) + (G - 15));
-            b = (int) (Math.random() * ((b + 15) - (b - 15)) + (b - 15));
-
-            if (r >= 240 | r <= 15) {
-                r = randomWithRange(0, 255);
-            }
-            if (G >= 240 | G <= 15) {
-                G = randomWithRange(0, 255);
-            }
-            if (b >= 240 | b <= 15) {
-                b = randomWithRange(0, 255);
-            }
-        }
-
         // Actions of run/stop/clear button
         if(e.getActionCommand() != null) {
             if(e.getActionCommand().equals("run") && !pathfinding.isRunning()) {
@@ -457,36 +342,9 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         repaint();
     }
 
-    // Returns random number between min and max
-    private int randomWithRange(int min, int max)
-    {
-        int range = (max - min) + 1;
-        return (int)(Math.random() * range) + min;
-    }
-
     // Calculates delay with two exponential functions
     public void setSpeed() {
-        int delay = 0;
-        int value = ch.getS("speed").getValue();
-
-        if(value == 0) {
-            timer.stop();
-        }
-        else if(value >= 1 && value < 50) {
-            if(!timer.isRunning()) {
-                timer.start();
-            }
-            // Exponential function. value(1) == delay(5000). value (50) == delay(25)
-            delay = (int)(a1 * (Math.pow(25/5000.0000, value / 49.0000)));
-        }
-        else if(value >= 50 && value <= 100) {
-            if(!timer.isRunning()) {
-                timer.start();
-            }
-            // Exponential function. value (50) == delay(25). value(100) == delay(1).
-            delay = (int)(a2 * (Math.pow(1/25.0000, value/50.0000)));
-        }
-        timer.setDelay(delay);
+        timer.setDelay(30);
     }
 
     public boolean showSteps() {
