@@ -14,22 +14,6 @@ public class AStar {
     private ArrayList<Node> borders, open, closed, path;
     private Sorting sort = new Sorting();
 
-    public AStar(int size) {
-        this.size = size;
-
-        diagonalMoveCost = (int) (Math.sqrt(2 * (Math.pow(size, 2))));
-        kValue = Math.PI / 2;
-        diagonal = true;
-        trig = false;
-        running = false;
-        complete = false;
-
-        borders = new ArrayList<Node>();
-        open = new ArrayList<Node>();
-        closed = new ArrayList<Node>();
-        path = new ArrayList<Node>();
-    }
-
     public AStar(Frame frame, int size) {
         this.frame = frame;
         this.size = size;
@@ -41,28 +25,10 @@ public class AStar {
         running = false;
         complete = false;
 
-        borders = new ArrayList<Node>();
-        open = new ArrayList<Node>();
-        closed = new ArrayList<Node>();
-        path = new ArrayList<Node>();
-    }
-
-    public AStar(Frame frame, int size, Node start, Node end) {
-        this.frame = frame;
-        this.size = size;
-        startNode = start;
-        endNode = end;
-
-        diagonalMoveCost = (int) (Math.sqrt(2 * (Math.pow(size, 2))));
-        diagonal = true;
-        trig = false;
-        running = false;
-        complete = false;
-
-        borders = new ArrayList<Node>();
-        open = new ArrayList<Node>();
-        closed = new ArrayList<Node>();
-        path = new ArrayList<Node>();
+        borders = new ArrayList<>();
+        open = new ArrayList<>();
+        closed = new ArrayList<>();
+        path = new ArrayList<>();
     }
 
     public void start(Node s, Node e) {
@@ -95,15 +61,6 @@ public class AStar {
         addClosed(startNode);
     }
 
-    public void setStart(Node s) {
-        startNode = s;
-        startNode.setG(0);
-    }
-
-    public void setEnd(Node e) {
-        endNode = e;
-    }
-
     public boolean isRunning() {
         return running;
     }
@@ -112,28 +69,12 @@ public class AStar {
         return complete;
     }
 
-    public Node getStart() {
-        return startNode;
-    }
-
-    public Node getEnd() {
-        return endNode;
-    }
-
     public Node getPar() {
         return par;
     }
 
     public boolean isNoPath() {
         return noPath;
-    }
-
-    public boolean isDiagonal() {
-        return diagonal;
-    }
-
-    public boolean isTrig() {
-        return trig;
     }
 
     public void setDiagonal(boolean d) {
@@ -150,7 +91,6 @@ public class AStar {
     }
 
     public void findPath(Node parent) {
-        Node openNode = null;
 
         if (diagonal) {
             // Detects and adds one step of nodes to open list
@@ -175,7 +115,7 @@ public class AStar {
                         continue;
                     }
 
-                    calculateNodeValues(possibleX, possibleY, openNode, parent);
+                    calculateNodeValues(possibleX, possibleY, parent);
                 }
             }
         }
@@ -191,7 +131,7 @@ public class AStar {
                     int possibleX = (parent.getX() - size) + (size * i);
                     int possibleY = (parent.getY() - size) + (size * j);
 
-                    calculateNodeValues(possibleX, possibleY, openNode, parent);
+                    calculateNodeValues(possibleX, possibleY, parent);
                 }
             }
         }
@@ -202,7 +142,7 @@ public class AStar {
                 int possibleX = (int) Math.round(parent.getX() + (-size * Math.cos(kValue * i)));
                 int possibleY = (int) Math.round(parent.getY() + (-size * Math.sin(kValue * i)));
 
-                calculateNodeValues(possibleX, possibleY, openNode, parent);
+                calculateNodeValues(possibleX, possibleY, parent);
             }
         }
         // frame.repaint();
@@ -279,7 +219,7 @@ public class AStar {
         }
     }
 
-    public void calculateNodeValues(int possibleX, int possibleY, Node openNode, Node parent) {
+    private void calculateNodeValues(int possibleX, int possibleY, Node parent) {
         // If the coordinates are outside of the borders
         if (possibleX < 0 | possibleY < 0 | possibleX >= frame.getWidth() | possibleY >= frame.getHeight()) {
             return;
@@ -293,7 +233,7 @@ public class AStar {
         }
         // Create an open node with the available x and y
         // coordinates
-        openNode = new Node(possibleX, possibleY);
+        Node openNode = new Node(possibleX, possibleY);
 
         // Set the parent of the open node
         openNode.setParent(parent);
@@ -327,7 +267,7 @@ public class AStar {
         addOpen(openNode);
     }
 
-    public void connectPath() {
+    private void connectPath() {
         if (getPathList().size() == 0) {
             Node parentNode = endNode.getParent();
 
@@ -356,7 +296,7 @@ public class AStar {
         }
     }
 
-    public void addOpen(Node node) {
+    private void addOpen(Node node) {
         if (open.size() == 0) {
             open.add(node);
         } else if (!checkOpenDuplicate(node)) {
@@ -364,7 +304,7 @@ public class AStar {
         }
     }
 
-    public void addClosed(Node node) {
+    private void addClosed(Node node) {
         if (closed.size() == 0) {
             closed.add(node);
         } else if (!checkClosedDuplicate(node)) {
@@ -372,7 +312,7 @@ public class AStar {
         }
     }
 
-    public void addPath(Node node) {
+    private void addPath(Node node) {
         if (path.size() == 0) {
             path.add(node);
         } else {
@@ -380,19 +320,11 @@ public class AStar {
         }
     }
 
-    public void removePath(int location) {
-        path.remove(location);
-    }
-
     public void removeBorder(int location) {
         borders.remove(location);
     }
 
-    public void removeOpen(int location) {
-        open.remove(location);
-    }
-
-    public void removeOpen(Node node) {
+    private void removeOpen(Node node) {
         for (int i = 0; i < open.size(); i++) {
             if (node.getX() == open.get(i).getX() && node.getY() == open.get(i).getY()) {
                 open.remove(i);
@@ -400,31 +332,27 @@ public class AStar {
         }
     }
 
-    public void removeClosed(int location) {
-        closed.remove(location);
-    }
-
-    public boolean checkBorderDuplicate(Node node) {
-        for (int i = 0; i < borders.size(); i++) {
-            if (node.getX() == borders.get(i).getX() && node.getY() == borders.get(i).getY()) {
+    private boolean checkBorderDuplicate(Node node) {
+        for (Node border : borders) {
+            if (node.getX() == border.getX() && node.getY() == border.getY()) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean checkOpenDuplicate(Node node) {
-        for (int i = 0; i < open.size(); i++) {
-            if (node.getX() == open.get(i).getX() && node.getY() == open.get(i).getY()) {
+    private boolean checkOpenDuplicate(Node node) {
+        for (Node anOpen : open) {
+            if (node.getX() == anOpen.getX() && node.getY() == anOpen.getY()) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean checkClosedDuplicate(Node node) {
-        for (int i = 0; i < closed.size(); i++) {
-            if (node.getX() == closed.get(i).getX() && node.getY() == closed.get(i).getY()) {
+    private boolean checkClosedDuplicate(Node node) {
+        for (Node aClosed : closed) {
+            if (node.getX() == aClosed.getX() && node.getY() == aClosed.getY()) {
                 return true;
             }
         }
@@ -443,7 +371,7 @@ public class AStar {
         return Location;
     }
 
-    public int searchClosed(int xSearch, int ySearch) {
+    private int searchClosed(int xSearch, int ySearch) {
         int Location = -1;
 
         for (int i = 0; i < closed.size(); i++) {
@@ -455,7 +383,7 @@ public class AStar {
         return Location;
     }
 
-    public int searchOpen(int xSearch, int ySearch) {
+    private int searchOpen(int xSearch, int ySearch) {
         int Location = -1;
 
         for (int i = 0; i < open.size(); i++) {
@@ -467,7 +395,7 @@ public class AStar {
         return Location;
     }
 
-    public void reverse(ArrayList list) {
+    private void reverse(ArrayList list) {
         int j = list.size() - 1;
 
         for (int i = 0; i < j; i++) {
@@ -480,7 +408,7 @@ public class AStar {
         }
     }
 
-    public Node lowestFCost() {
+    private Node lowestFCost() {
         if (open.size() > 0) {
             sort.bubbleSort(open);
             return open.get(0);
@@ -494,10 +422,6 @@ public class AStar {
 
     public ArrayList<Node> getOpenList() {
         return open;
-    }
-
-    public Node getOpen(int location) {
-        return open.get(location);
     }
 
     public ArrayList<Node> getClosedList() {
@@ -529,36 +453,12 @@ public class AStar {
         complete = false;
     }
 
-    public Node getOpenNode(int x, int y) {
-        for (int i = 0; i < open.size(); i++) {
-            if (open.get(i).getX() == x && open.get(i).getY() == y) {
-                return open.get(i);
+    private Node getOpenNode(int x, int y) {
+        for (Node anOpen : open) {
+            if (anOpen.getX() == x && anOpen.getY() == y) {
+                return anOpen;
             }
         }
         return null;
-    }
-
-    public void printBorderList() {
-        for (int i = 0; i < borders.size(); i++) {
-            System.out.print(borders.get(i).getX() + ", " + borders.get(i).getY());
-            System.out.println();
-        }
-        System.out.println("===============");
-    }
-
-    public void printOpenList() {
-        for (int i = 0; i < open.size(); i++) {
-            System.out.print(open.get(i).getX() + ", " + open.get(i).getY());
-            System.out.println();
-        }
-        System.out.println("===============");
-    }
-
-    public void printPathList() {
-        for (int i = 0; i < path.size(); i++) {
-            System.out.print(i + ": " + path.get(i).getX() + ", " + path.get(i).getY() + ": " + path.get(i).getF());
-            System.out.println();
-        }
-        System.out.println("===============");
     }
 }

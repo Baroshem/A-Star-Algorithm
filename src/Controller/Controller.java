@@ -12,8 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class Controller {
     private Frame frame;
@@ -26,14 +24,14 @@ public class Controller {
     private ArrayList<JCheckBox> checks;
     private ArrayList<JSlider> sliders;
     private ArrayList<JButton> buttons;
-    Dimension npD;
+    private Dimension npD;
 
     public Controller(Frame frame) {
         this.frame = frame;
-        labels = new ArrayList<JLabel>();
-        checks = new ArrayList<JCheckBox>();
-        sliders = new ArrayList<JSlider>();
-        buttons = new ArrayList<JButton>();
+        labels = new ArrayList<>();
+        checks = new ArrayList<>();
+        sliders = new ArrayList<>();
+        buttons = new ArrayList<>();
 
         // Set up JLabels
         modeText = new JLabel("Mode: ");
@@ -135,14 +133,11 @@ public class Controller {
         speed.setOpaque(false);
         speed.setVisible(true);
         speed.setFocusable(false);
-        speed.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                JSlider source = (JSlider) e.getSource();
-                speed.setValue(source.getValue());
-                frame.setSpeed();
-                frame.repaint();
-            }
+        speed.addChangeListener(e -> {
+            JSlider source = (JSlider) e.getSource();
+            speed.setValue(source.getValue());
+            frame.setSpeed();
+            frame.repaint();
         });
 
         // Add JSliders to list
@@ -163,9 +158,9 @@ public class Controller {
 
     // Gets a specific JLabel by name
     public JLabel getL(String t) {
-        for(int i = 0; i < labels.size(); i++) {
-            if(labels.get(i).getName().equals(t)) {
-                return labels.get(i);
+        for (JLabel label : labels) {
+            if (label.getName().equals(t)) {
+                return label;
             }
         }
         return null;
@@ -173,9 +168,9 @@ public class Controller {
 
     // Gets specific JCheckBox by name
     public JCheckBox getC(String t) {
-        for(int i = 0; i < checks.size(); i++) {
-            if(checks.get(i).getName().equals(t)) {
-                return checks.get(i);
+        for (JCheckBox check : checks) {
+            if (check.getName().equals(t)) {
+                return check;
             }
         }
         return null;
@@ -183,9 +178,9 @@ public class Controller {
 
     // Gets specific JCheckBox by name
     public JSlider getS(String t) {
-        for(int i = 0; i < sliders.size(); i++) {
-            if(sliders.get(i).getName().equals(t)) {
-                return sliders.get(i);
+        for (JSlider slider : sliders) {
+            if (slider.getName().equals(t)) {
+                return slider;
             }
         }
         return null;
@@ -193,9 +188,9 @@ public class Controller {
 
     // Gets specific JCheckBox by name
     public JButton getB(String t) {
-        for(int i = 0; i < buttons.size(); i++) {
-            if(buttons.get(i).getName().equals(t)) {
-                return buttons.get(i);
+        for (JButton button : buttons) {
+            if (button.getName().equals(t)) {
+                return button;
             }
         }
         return null;
@@ -203,7 +198,7 @@ public class Controller {
 
     public void noPathTBounds() {
         noPathT.setBounds((int)((frame.getWidth()/2)-(npD.getWidth()/2)),
-                (int)((frame.getHeight()/2)-70),
+                (frame.getHeight()/2)-70,
                 (int)npD.getWidth(), (int)npD.getHeight());
     }
 

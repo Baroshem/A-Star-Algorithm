@@ -9,20 +9,19 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Frame extends JPanel implements ActionListener, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
-    Controller ch;
-    JFrame window;
-    AStar pathfinding;
-    boolean showSteps, btnHover;
-    int size;
-    double a1, a2;
-    char currentKey = (char) 0;
-    Node startNode, endNode;
-    String mode;
+    private Controller ch;
+    private AStar pathfinding;
+    private boolean showSteps, btnHover;
+    private int size;
+    private double a1, a2;
+    private char currentKey = (char) 0;
+    private Node startNode, endNode;
+    private String mode;
 
-    Timer timer = new Timer(100, this);
-    int r = randomWithRange(0, 255);
-    int G = randomWithRange(0, 255);
-    int b = randomWithRange(0, 255);
+    private Timer timer = new Timer(100, this);
+    private int r = randomWithRange(0, 255);
+    private int G = randomWithRange(0, 255);
+    private int b = randomWithRange(0, 255);
 
     public static void main(String[] args) {
         new Frame();
@@ -51,7 +50,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         a2 = 625.0000;
 
         // Set up window
-        window = new JFrame();
+        JFrame window = new JFrame();
         window.setContentPane(this);
         window.setTitle("A* Pathfinding Visualization");
         window.getContentPane().setPreferredSize(new Dimension(700, 600));
@@ -72,7 +71,6 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
 
         // Grab dimensions of panel
         int height = getHeight();
-        int width = getWidth();
 
         // If no path is found
         if (pathfinding.isNoPath()) {
@@ -214,7 +212,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
     }
 
     // Draws info (f, g, h) on current node
-    public void drawInfo(Node current, Graphics g) {
+    private void drawInfo(Node current, Graphics g) {
         if (size > 50) {
             g.setFont(style.numbers);
             g.setColor(Color.black);
@@ -225,7 +223,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         }
     }
 
-    public void MapCalculations(MouseEvent e) {
+    private void MapCalculations(MouseEvent e) {
         // If left mouse button is clicked
         if (SwingUtilities.isLeftMouseButton(e)) {
             // If 's' is pressed create start node
@@ -323,12 +321,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         int height = this.getHeight();
 
         // Detects if mouse is within button panel
-        if(x >= 10 && x <= 332 && y >= (height-96) && y <= (height-6)) {
-            btnHover = true;
-        }
-        else {
-            btnHover = false;
-        }
+        btnHover = x >= 10 && x <= 332 && y >= (height - 96) && y <= (height - 6);
         repaint();
     }
 
@@ -337,14 +330,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
 
     @Override
     public void keyPressed(KeyEvent e) {
-        char key = e.getKeyChar();
-        currentKey = key;
-
-        // Start if space is pressed
-        if (currentKey == KeyEvent.VK_SPACE) {
-            ch.getB("run").setText("stop");
-            start();
-        }
+        currentKey = e.getKeyChar();
     }
 
     @Override
@@ -353,7 +339,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
     }
 
     // Starts path finding
-    void start() {
+    private void start() {
         if(startNode != null && endNode != null) {
             if (!showSteps) {
                 pathfinding.start(startNode, endNode);
@@ -472,7 +458,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
     }
 
     // Returns random number between min and max
-    int randomWithRange(int min, int max)
+    private int randomWithRange(int min, int max)
     {
         int range = (max - min) + 1;
         return (int)(Math.random() * range) + min;
