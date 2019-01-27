@@ -1,6 +1,5 @@
 package View;
 
-import Controller.Controller;
 import Controller.AStar;
 import Model.Node;
 
@@ -19,8 +18,79 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
 
     private Timer timer = new Timer(100, this);
 
-    public static void main(String[] args) {
-        new Frame();
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    public boolean showSteps() {
+        return showSteps;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        MapCalculations(e);
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        MapCalculations(e);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        repaint();
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        currentKey = e.getKeyChar();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        currentKey = (char) 0;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Moves one step ahead in path finding (called on timer)
+        if (pathfinding.isRunning() && showSteps) {
+            pathfinding.findPath(pathfinding.getPar());
+            mode = "Running";
+        }
+        // Actions of run/stop/clear button
+        if(e.getActionCommand() != null) {
+            if(e.getActionCommand().equals("run") && !pathfinding.isRunning()) {
+                ch.getB("run").setText("stop");
+                start();
+            }
+            else if(e.getActionCommand().equals("clear")) {
+                ch.getB("run").setText("run");
+                mode = "Map Creation";
+                ch.getL("noPathT").setVisible(false);
+                pathfinding.reset();
+            }
+            else if(e.getActionCommand().equals("stop")) {
+                ch.getB("run").setText("start");
+                timer.stop();
+            }
+            else if(e.getActionCommand().equals("start")) {
+                ch.getB("run").setText("stop");
+                timer.start();
+            }
+        }
+        repaint();
     }
 
     public Frame() {
@@ -28,7 +98,6 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         size = 25;
         mode = "Map Creation";
         showSteps = true;
-//        btnHover = false;
         setLayout(null);
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -60,8 +129,73 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Grab dimensions of panel
-        int height = getHeight();
+        // Draws grid
+        g.setColor(Color.lightGray);
+        for (int j = 0; j < this.getHeight(); j += size) {
+            for (int i = 0; i < this.getWidth(); i += size) {
+                g.drawRect(i, j, size, size);
+            }
+        }
+
+        // Draws all borders
+        g.setColor(Color.black);
+        for (int i = 0; i < pathfinding.getBorderList().size(); i++) {
+            g.fillRect(pathfinding.getBorderList().get(i).getX() + 1, pathfinding.getBorderList().get(i).getY() + 1,
+                    size - 1, size - 1);
+        }
+
+        // Draws all open Nodes (path finding nodes)
+        for (int i = 0; i < pathfinding.getOpenList().size(); i++) {
+            Node current = pathfinding.getOpenList().get(i);
+            g.setColor(style.greenHighlight);
+            g.fillRect(current.getX() + 1, current.getY() + 1, size - 1, size - 1);
+        }
+
+        // Draws all closed nodes
+        for (int i = 0; i < pathfinding.getClosedList().size(); i++) {
+            Node current = pathfinding.getClosedList().get(i);
+
+            g.setColor(style.redHighlight);
+            g.fillRect(current.getX() + 1, current.getY() + 1, size - 1, size - 1);
+        }
+
+        // Draw all final path nodes
+        for (int i = 0; i < pathfinding.getPathList().size(); i++) {
+            Node current = pathfinding.getPathList().get(i);
+
+            g.setColor(style.blueHighlight);
+            g.fillRect(current.getX() + 1, current.getY() + 1, size - 1, size - 1);
+        }
+
+        // Draws start of path
+        if (startNode != null) {
+            g.setColor(Color.blue);
+            g.fillRect(startNode.getX() + 1, startNode.getY() + 1, size - 1, size - 1);
+        }
+        // Draws end of path
+        if (endNode != null) {
+            g.setColor(Color.red);
+            g.fillRect(endNode.getX() + 1, endNode.getY() + 1, size - 1, size - 1);
+        }
+
+        g.setColor(style.btnPanel);
+
+        // Drawing control panel rectangle
+        g.fillRect(10, 10, 322, 90);
+
+        // Setting mode text
+        ch.getL("modeText").setText("Mode: " + mode);
+
+        // Position all controls
+        ch.position();
+
+        // Setting numbers in pathfinding lists
+        ch.getL("openC").setText(Integer.toString(pathfinding.getOpenList().size()));
+        ch.getL("closedC").setText(Integer.toString(pathfinding.getClosedList().size()));
+        ch.getL("pathC").setText(Integer.toString(pathfinding.getPathList().size()));
+
+        // Getting values from checkboxes
+        showSteps = ch.getC("showStepsCheck").isSelected();
 
         // If no path is found
         if (pathfinding.isNoPath()) {
@@ -95,94 +229,6 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
             if(showSteps) {
                 mode = "Completed";
             }
-        }
-
-        // Draws grid
-        g.setColor(Color.lightGray);
-        for (int j = 0; j < this.getHeight(); j += size) {
-            for (int i = 0; i < this.getWidth(); i += size) {
-                g.drawRect(i, j, size, size);
-            }
-        }
-
-        // Draws all borders
-        g.setColor(Color.black);
-        for (int i = 0; i < pathfinding.getBorderList().size(); i++) {
-            g.fillRect(pathfinding.getBorderList().get(i).getX() + 1, pathfinding.getBorderList().get(i).getY() + 1,
-                    size - 1, size - 1);
-        }
-
-        // Draws all open Nodes (path finding nodes)
-        for (int i = 0; i < pathfinding.getOpenList().size(); i++) {
-            Node current = pathfinding.getOpenList().get(i);
-            g.setColor(style.greenHighlight);
-            g.fillRect(current.getX() + 1, current.getY() + 1, size - 1, size - 1);
-
-            drawInfo(current, g);
-        }
-
-        // Draws all closed nodes
-        for (int i = 0; i < pathfinding.getClosedList().size(); i++) {
-            Node current = pathfinding.getClosedList().get(i);
-
-            g.setColor(style.redHighlight);
-            g.fillRect(current.getX() + 1, current.getY() + 1, size - 1, size - 1);
-
-            drawInfo(current, g);
-        }
-
-        // Draw all final path nodes
-        for (int i = 0; i < pathfinding.getPathList().size(); i++) {
-            Node current = pathfinding.getPathList().get(i);
-
-            g.setColor(style.blueHighlight);
-            g.fillRect(current.getX() + 1, current.getY() + 1, size - 1, size - 1);
-
-            drawInfo(current, g);
-        }
-
-        // Draws start of path
-        if (startNode != null) {
-            g.setColor(Color.green);
-            g.fillRect(startNode.getX() + 1, startNode.getY() + 1, size - 1, size - 1);
-        }
-        // Draws end of path
-        if (endNode != null) {
-            g.setColor(Color.red);
-            g.fillRect(endNode.getX() + 1, endNode.getY() + 1, size - 1, size - 1);
-        }
-
-        g.setColor(style.btnPanel);
-        ch.nonHoverColour();
-
-        // Drawing control panel rectangle
-        g.fillRect(10, height-96, 322, 90);
-
-        // Setting mode text
-        ch.getL("modeText").setText("Mode: " + mode);
-
-        // Position all controls
-        ch.position();
-
-        // Setting numbers in pathfinding lists
-        ch.getL("openC").setText(Integer.toString(pathfinding.getOpenList().size()));
-        ch.getL("closedC").setText(Integer.toString(pathfinding.getClosedList().size()));
-        ch.getL("pathC").setText(Integer.toString(pathfinding.getPathList().size()));
-
-        // Getting values from checkboxes
-        showSteps = ch.getC("showStepsCheck").isSelected();
-        pathfinding.setDiagonal(ch.getC("diagonalCheck").isSelected());
-    }
-
-    // Draws info (f, g, h) on current node
-    private void drawInfo(Node current, Graphics g) {
-        if (size > 50) {
-            g.setFont(style.numbers);
-            g.setColor(Color.black);
-            g.drawString(Integer.toString(current.getF()), current.getX() + 4, current.getY() + 16);
-            g.setFont(style.smallNumbers);
-            g.drawString(Integer.toString(current.getG()), current.getX() + 4, current.getY() + size - 7);
-            g.drawString(Integer.toString(current.getH()), current.getX() + size - 26, current.getY() + size - 7);
         }
     }
 
@@ -254,100 +300,18 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         }
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        MapCalculations(e);
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {}
-
-    @Override
-    public void mouseReleased(MouseEvent e) {}
-
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        MapCalculations(e);
-    }
-
-    @Override
-    // Track mouse on movement
-    public void mouseMoved(MouseEvent e) {
-        repaint();
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {}
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        currentKey = e.getKeyChar();
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        currentKey = (char) 0;
-    }
-
-    // Starts path finding
     private void start() {
         if(startNode != null && endNode != null) {
             if (!showSteps) {
                 pathfinding.start(startNode, endNode);
             } else {
                 pathfinding.setup(startNode, endNode);
-                setSpeed();
+                timer.setDelay(50);
                 timer.start();
             }
         }
         else {
             System.out.println("ERROR: Needs start and end points to run.");
         }
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        // Moves one step ahead in path finding (called on timer)
-        if (pathfinding.isRunning() && showSteps) {
-            pathfinding.findPath(pathfinding.getPar());
-            mode = "Running";
-        }
-        // Actions of run/stop/clear button
-        if(e.getActionCommand() != null) {
-            if(e.getActionCommand().equals("run") && !pathfinding.isRunning()) {
-                ch.getB("run").setText("stop");
-                start();
-            }
-            else if(e.getActionCommand().equals("clear")) {
-                ch.getB("run").setText("run");
-                mode = "Map Creation";
-                ch.getL("noPathT").setVisible(false);
-                pathfinding.reset();
-            }
-            else if(e.getActionCommand().equals("stop")) {
-                ch.getB("run").setText("start");
-                timer.stop();
-            }
-            else if(e.getActionCommand().equals("start")) {
-                ch.getB("run").setText("stop");
-                timer.start();
-            }
-        }
-        repaint();
-    }
-
-    // Calculates delay with two exponential functions
-    public void setSpeed() {
-        timer.setDelay(30);
-    }
-
-    public boolean showSteps() {
-        return showSteps;
     }
 }
