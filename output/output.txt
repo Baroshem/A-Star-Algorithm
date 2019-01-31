@@ -1,0 +1,1 @@
+Open nodes: 32 Closed nodes: 13 Final path length: 12

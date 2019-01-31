@@ -6,6 +6,10 @@ import Model.Node;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class Frame extends JPanel implements ActionListener, MouseListener, MouseMotionListener, KeyListener {
     private Controller ch;
@@ -73,7 +77,11 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         if(e.getActionCommand() != null) {
             if(e.getActionCommand().equals("run") && !pathfinding.isRunning()) {
                 ch.getB("run").setText("stop");
-                start();
+                try {
+                    start();
+                } catch (OutOfPointsEx x) {
+                    System.out.println(x.getError());
+                }
             }
             else if(e.getActionCommand().equals("clear")) {
                 ch.getB("run").setText("run");
@@ -194,6 +202,18 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         ch.getL("closedC").setText(Integer.toString(pathfinding.getClosedList().size()));
         ch.getL("pathC").setText(Integer.toString(pathfinding.getPathList().size()));
 
+        File f = new File("./output/output.txt");
+        try {
+            FileWriter fw = new FileWriter(f);
+            PrintWriter pw = new PrintWriter(fw);
+            pw.printf("Open nodes: %s ", pathfinding.getOpenList().size());
+            pw.printf("Closed nodes: %s ", pathfinding.getClosedList().size());
+            pw.printf("Final path length: %s", pathfinding.getPathList().size());
+            pw.close();
+        } catch (IOException e) {
+            e.getMessage();
+        }
+
         // Getting values from checkboxes
         showSteps = ch.getC("showStepsCheck").isSelected();
 
@@ -300,7 +320,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         }
     }
 
-    private void start() {
+    private void start() throws OutOfPointsEx {
         if(startNode != null && endNode != null) {
             if (!showSteps) {
                 pathfinding.start(startNode, endNode);
@@ -311,7 +331,9 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
             }
         }
         else {
-            System.out.println("ERROR: Needs start and end points to run.");
+            OutOfPointsEx o = new OutOfPointsEx();
+            o.setError("ERROR: Needs start and end points to run.");
+            throw o;
         }
     }
 }
