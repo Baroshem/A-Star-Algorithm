@@ -138,7 +138,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         super.paintComponent(g);
 
         // Draws grid
-        g.setColor(Color.lightGray);
+        g.setColor(Color.GRAY);
         for (int j = 0; j < this.getHeight(); j += size) {
             for (int i = 0; i < this.getWidth(); i += size) {
                 g.drawRect(i, j, size, size);
@@ -155,7 +155,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         // Draws all open Nodes (path finding nodes)
         for (int i = 0; i < pathfinding.getOpenList().size(); i++) {
             Node current = pathfinding.getOpenList().get(i);
-            g.setColor(style.greenHighlight);
+            g.setColor(style.getGreenHighlight());
             g.fillRect(current.getX() + 1, current.getY() + 1, size - 1, size - 1);
         }
 
@@ -163,7 +163,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         for (int i = 0; i < pathfinding.getClosedList().size(); i++) {
             Node current = pathfinding.getClosedList().get(i);
 
-            g.setColor(style.redHighlight);
+            g.setColor(style.getRedHighlight());
             g.fillRect(current.getX() + 1, current.getY() + 1, size - 1, size - 1);
         }
 
@@ -171,7 +171,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
         for (int i = 0; i < pathfinding.getPathList().size(); i++) {
             Node current = pathfinding.getPathList().get(i);
 
-            g.setColor(style.blueHighlight);
+            g.setColor(style.getBlueHighlight());
             g.fillRect(current.getX() + 1, current.getY() + 1, size - 1, size - 1);
         }
 
@@ -186,7 +186,7 @@ public class Frame extends JPanel implements ActionListener, MouseListener, Mous
             g.fillRect(endNode.getX() + 1, endNode.getY() + 1, size - 1, size - 1);
         }
 
-        g.setColor(style.btnPanel);
+        g.setColor(style.getBtnPanel());
 
         // Drawing control panel rectangle
         g.fillRect(10, 10, 322, 90);

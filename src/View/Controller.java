@@ -28,44 +28,44 @@ class Controller {
         // Set up JLabels
         modeText = new JLabel("Mode: ");
         modeText.setName("modeText");
-        modeText.setFont(style.bigText);
-        modeText.setForeground(style.darkText);
+        modeText.setFont(style.getBigText());
+        modeText.setForeground(style.getDarkText());
         modeText.setVisible(true);
 
         openT = new JLabel("Open");
         openT.setName("openT");
-        openT.setFont(style.numbers);
+        openT.setFont(style.getNumbers());
         openT.setVisible(true);
 
         openC = new JLabel("0");
         openC.setName("openC");
-        openC.setFont(style.numbers);
+        openC.setFont(style.getNumbers());
         openC.setVisible(true);
 
         closedT = new JLabel("Closed");
         closedT.setName("closedT");
-        closedT.setFont(style.numbers);
+        closedT.setFont(style.getNumbers());
         closedT.setVisible(true);
 
         closedC = new JLabel("0");
         closedC.setName("closedC");
-        closedC.setFont(style.numbers);
+        closedC.setFont(style.getNumbers());
         closedC.setVisible(true);
 
         pathT = new JLabel("Path");
         pathT.setName("pathT");
-        pathT.setFont(style.numbers);
+        pathT.setFont(style.getNumbers());
         pathT.setVisible(true);
 
         pathC = new JLabel("0");
         pathC.setName("pathC");
-        pathC.setFont(style.numbers);
+        pathC.setFont(style.getNumbers());
         pathC.setVisible(true);
 
         noPathT = new JLabel("NO PATH");
         noPathT.setName("noPathT");
         noPathT.setForeground(Color.white);
-        noPathT.setFont(style.REALBIGText);
+        noPathT.setFont(style.getREALBIGText());
         npD = noPathT.getPreferredSize();
 
         // Add JLabels to list
