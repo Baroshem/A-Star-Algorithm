@@ -225,7 +225,7 @@ public class AStar {
         return Location;
     }
 
-    public void findPath(Node parent) {
+    public void findPath(Node parent) throws NoPathEx{
 
         if (diagonal) {
             // Detects and adds one step of nodes to open list
@@ -256,10 +256,16 @@ public class AStar {
         }
 
         // Set the new parent node
-        parent = lowestFCost();
+        try {
+            parent = lowestFCost();
+        } catch (NoPathEx x) {
+            System.out.println(x.getError());
+        }
 
         if (parent == null) {
-            System.out.println("END> NO PATH");
+            NoPathEx n = new NoPathEx();
+            n.setError("END> NO PATH");
+            throw n;
             noPath = true;
             running = false;
             frame.repaint();
